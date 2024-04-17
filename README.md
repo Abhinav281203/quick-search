@@ -11,3 +11,8 @@ source: https://github.com/LIAAD/yake
 ### Multilingual Support
 
 The application offers multilingual support, enabling users to conduct searches and receive summaries and articles in languages such as English, Telugu, Kannada, and Hindi. This approach increases the reach of the product and accommodates diverse linguistic preferences, enhancing the user experience.
+
+## Samples
+
+<img src="./eng.jpeg" alt="Example Image" width="80%"/>
+<img src="./kannada.jpeg" alt="Example Image" width="80%"/>
