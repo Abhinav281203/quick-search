@@ -18,8 +18,9 @@ def fetch_urls(user_query, start=1, stop=2):
     articles = []
     try:
         # Perform Google search to fetch URLs related to user query
-        for url in search(user_query, start=start, stop=stop):
+        for url in search(user_query,num_results=start):
             articles.append(url)
+        # print(articles)
     except Exception as e:
         print(f"Error fetching articles: {e}")
-    return articles
+    return list(set(articles))

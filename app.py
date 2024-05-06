@@ -33,7 +33,7 @@ def main():
                 print("Error:", e)
 
         # Generate summary based on the input query
-        summary = summary_.generate_summary(input_query, max_token_limit, language)
+        summary = summary_.generate_summary(article_content, max_token_limit, language)
 
         st.header("Summary")
         st.write(summary)

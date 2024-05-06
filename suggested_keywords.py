@@ -54,8 +54,9 @@ def get_suggested(query, summary):
     # Fetch articles related to each keyword
     suggested = {}
     for key_word, score in keywords:
+        # print(key_word)
         suggested[query + " " + key_word] = fetch.fetch_urls(
-            query + " " + key_word, 0, 1
+            query + " " + key_word, 1, 1
         )[0]
 
     return suggested

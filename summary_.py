@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-client = OpenAI(api_key="***OPENAI_API_KEY***")
+client = OpenAI(api_key="******************************")
 
 
 def generate_summary(text, max_token_limit, language):
