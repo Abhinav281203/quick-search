@@ -1,6 +1,6 @@
 # perplexity-imitate
 
-A Python application designed to replicate the functionality of a perplexity's search engine. Upon receiving a query from the user, it scours the internet for top articles. It selects the most relevant ones and compiles a comprehensive summary utilizing the OPENAI API. Moreover, employing the YAKE algorithm, the application extracts crucial keywords from the summary, helping in the creation of a new context. This enhanced context is then utilized for further searches, giving suggested articles to the user's query.
+A Python application designed to replicate the functionality of a perplexity's search engine. Upon receiving a query from the user, it scours the internet for top articles. It selects the most relevant ones and compiles a comprehensive summary. Moreover, employing the YAKE algorithm, the application extracts crucial keywords from the summary, helping in the creation of a new context. This enhanced context is then utilized for further searches, giving suggested articles to the user's query.
 
 ### Yake
 
