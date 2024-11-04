@@ -31,7 +31,7 @@ def main():
             "**Select Language**", ["English", "Kannada", "Hindi", "Telugu"]
         )
         search_button = st.form_submit_button("**Search**")
-    
+
     if search_button and input_query:
         st.session_state.input_query = input_query
         # Fetch URLs related to the input query
@@ -50,7 +50,6 @@ def main():
         st.session_state.summary = summary
         st.session_state.messages.append(summary)
 
-
     for i in st.session_state.messages:
         st.write(i)
 
@@ -59,15 +58,19 @@ def main():
         if st.form_submit_button("Send"):
             if prompt:
                 st.session_state.messages.append(f"You: {prompt}")
-                ai_response = summary_.generate_resp(st.session_state.input_query, st.session_state.messages, prompt)
+                ai_response = summary_.generate_resp(
+                    st.session_state.input_query, st.session_state.messages, prompt
+                )
                 st.session_state.messages.append(f"AI: {ai_response}")
                 st.rerun()
 
     st.header("Things You Might Like")
-    
+
     if "summary" in st.session_state and "input_query" in st.session_state:
         if not "suggested" in st.session_state:
-            st.session_state.suggested = suggested_keywords.get_suggested(st.session_state.input_query, st.session_state.summary)
+            st.session_state.suggested = suggested_keywords.get_suggested(
+                st.session_state.input_query, st.session_state.summary
+            )
             st.rerun()
 
     if "suggested" in st.session_state:
@@ -80,6 +83,7 @@ def main():
 
             st.subheader(title)
             st.write(link)
+
 
 if __name__ == "__main__":
     main()

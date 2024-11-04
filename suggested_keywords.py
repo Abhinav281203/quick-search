@@ -61,7 +61,7 @@ def get_suggested(query, summary):
         # print(key_word)
         try:
             articles = fetch.fetch_urls(
-                query + " " + key_word, start=start, stop=start+2
+                query + " " + key_word, start=start, stop=start + 2
             )
             # print(articles)
             suggested.extend(articles)

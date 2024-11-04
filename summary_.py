@@ -4,7 +4,7 @@ import os
 import fetch
 
 load_dotenv()
-api_key = os.getenv('OPENAI_API_KEY')
+api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 
@@ -13,7 +13,10 @@ def generate_summary(text, max_token_limit, language):
     if language != "English":
         max_token_limit = int(max_token_limit * 3)
 
-    prompt = f"give me a comnbined summary of these articles in {language} in a readable text format:\n" + text
+    prompt = (
+        f"give me a comnbined summary of these articles in {language} in a readable text format:\n"
+        + text
+    )
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -25,6 +28,7 @@ def generate_summary(text, max_token_limit, language):
     )
 
     return completion.choices[0].message.content
+
 
 def generate_resp(input_query, messages, prompt):
     # Adjust max token limit for non-English language

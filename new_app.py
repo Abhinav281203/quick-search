@@ -7,6 +7,7 @@ import nltk
 # nltk.download('stopwords')
 # nltk.download('punkt')
 
+
 def main():
     st.title("Quick Search")
     st.sidebar.header("Search Parameters")
@@ -38,16 +39,23 @@ def main():
                         article_content += fetch.extract_content(link)["content"]
                     except Exception as e:
                         print("Error@35-app:", e)
-                summary = summary_.generate_summary(article_content, max_token_limit, language)
+                summary = summary_.generate_summary(
+                    article_content, max_token_limit, language
+                )
                 if len(st.session_state.messages) == 0:
-                    st.session_state.messages.append({"role": "assistant", "content": summary})
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": summary}
+                    )
 
     if st.session_state.show:
         tab1, tab2 = st.tabs(["Ask anything", "More like this"])
         with tab1:
 
             for message in st.session_state.messages:
-                with st.chat_message(message["role"], avatar="🧑‍💻" if message["role"] == "user" else "🤖"):
+                with st.chat_message(
+                    message["role"],
+                    avatar="🧑‍💻" if message["role"] == "user" else "🤖",
+                ):
                     st.markdown(message["content"])
 
             # Chat input
@@ -60,19 +68,25 @@ def main():
 
                 # Lyra's response
                 with st.spinner("Assistant is thinking..."):
-                    lyra_response = summary_.generate_resp(st.session_state.input_query, st.session_state.messages, prompt)
+                    lyra_response = summary_.generate_resp(
+                        st.session_state.input_query, st.session_state.messages, prompt
+                    )
                 with st.chat_message("assistant", avatar="🤖"):
                     st.write(lyra_response)
-                st.session_state.messages.append({"role": "assistant", "content": lyra_response})
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": lyra_response}
+                )
                 st.rerun()
 
         with tab2:
             if "suggested" not in st.session_state:
-                st.session_state.suggested = suggested_keywords.get_suggested(input_query, summary)
+                st.session_state.suggested = suggested_keywords.get_suggested(
+                    input_query, summary
+                )
                 # print("Got keywords")
                 # print(st.session_state.suggested, "&"*100)
                 st.rerun()
-            
+
             if "suggested" in st.session_state:
                 for link in st.session_state.suggested:
                     obj = fetch.extract_content(link)
@@ -85,10 +99,9 @@ def main():
                     st.write(link)
 
 
-
 if __name__ == "__main__":
     # Initialize session state for authentication status
-    if 'messages' not in st.session_state:
+    if "messages" not in st.session_state:
         st.session_state.messages = []
     if "show" not in st.session_state:
         st.session_state.show = False

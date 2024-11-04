@@ -20,7 +20,7 @@ def fetch_urls(user_query, start=1, stop=3):
     articles = []
     try:
         # Perform Google search to fetch URLs related to user query
-        for url in search(term=user_query, num_results=stop-start):
+        for url in search(term=user_query, num_results=stop - start):
             articles.append(url)
         # print(articles)
     except Exception as e:
