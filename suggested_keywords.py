@@ -49,7 +49,9 @@ def get_keywords(summary):
 
 
 def get_suggested(query, summary):
+    # print("Getting suggested")
     keywords = get_keywords(summary.replace("\n", ". "))
+    # print("Key words", keywords)
 
     # Fetch articles related to each keyword
     suggested = []
@@ -59,11 +61,12 @@ def get_suggested(query, summary):
         # print(key_word)
         try:
             articles = fetch.fetch_urls(
-                query + " " + key_word, start, x
+                query + " " + key_word, start=start, stop=start+2
             )
+            # print(articles)
             suggested.extend(articles)
             start += 1
         except:
             continue
 
-    return list(set(articles))
+    return list(set(suggested))
