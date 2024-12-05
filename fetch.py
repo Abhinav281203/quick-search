@@ -1,5 +1,6 @@
 from goose3 import Goose
 from googlesearch import search
+import streamlit as st
 
 # Initialize Goose for extracting content from articles
 g = Goose()
@@ -15,12 +16,12 @@ def extract_content(article_url):
         print(f"Error extracting text from article: {e}")
         return {"status": False}
 
-
+@st.cache_data
 def fetch_urls(user_query, start=1, stop=3):
     articles = []
     try:
         # Perform Google search to fetch URLs related to user query
-        for url in search(term=user_query, num_results=stop - start):
+        for url in search(query=user_query, start=start, stop=stop):
             articles.append(url)
         # print(articles)
     except Exception as e:

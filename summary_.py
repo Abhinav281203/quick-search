@@ -1,12 +1,17 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-import fetch
+import faiss
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
+client = OpenAI(api_key="")
 
+def get_embeddings(text, model="all-MiniLM-L6-v2"):
+    model = SentenceTransformer(model)
+    embeddings = model.encode(text, convert_to_numpy=True)
+    return embeddings
 
 def generate_summary(text, max_token_limit, language):
     # Adjust max token limit for non-English language
@@ -30,22 +35,18 @@ def generate_summary(text, max_token_limit, language):
     return completion.choices[0].message.content
 
 
-def generate_resp(input_query, messages, prompt):
+def generate_resp(input_query, index, prompt, chunks, k=5):
     # Adjust max token limit for non-English language
     # print(messages)
-    messages = [i["content"] for i in messages]
-    article_links = fetch.fetch_urls(input_query + " " + prompt, start=0, stop=1)
-    article_content = ""
-    for link in article_links:
-        try:
-            article_content += fetch.extract_content(link)["content"]
-        except Exception as e:
-            print("Error@39-app:", e)
-    # print(messages, "&"*100)
+    embed = get_embeddings([input_query])
+    D, I = index.search(embed, k)
+    messages = []
+    for i in I[0]:
+        messages.append(chunks[int(i)])
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "\n".join(messages) + article_content},
+            {"role": "system", "content": "\n".join(messages)},
             {"role": "user", "content": prompt},
         ],
     )

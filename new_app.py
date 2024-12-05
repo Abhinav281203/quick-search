@@ -2,10 +2,17 @@ import streamlit as st
 import fetch
 import summary_
 import suggested_keywords
+import faiss
+from dotenv import load_dotenv
 import nltk
-
 # nltk.download('stopwords')
 # nltk.download('punkt')
+ 
+
+load_dotenv()
+
+def create_chunks(text, chunk_size=2000):
+    return [text[i: i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 
 def main():
@@ -29,9 +36,11 @@ def main():
             if search_button:
                 st.session_state.input_query = input_query
                 st.session_state.show = True
-                article_links = fetch.fetch_urls(input_query, start=0, stop=2)
-                # print("Searched", len(article_links), "links")
-                # print(article_links)
+                if "article_links" not in st.session_state:
+                    article_links = fetch.fetch_urls(input_query, start=0, stop=3)
+                    st.session_state["article_links"] = article_links
+                else:
+                    article_links = st.session_state["article_links"]
 
                 article_content = ""
                 for link in article_links:
@@ -39,9 +48,21 @@ def main():
                         article_content += fetch.extract_content(link)["content"]
                     except Exception as e:
                         print("Error@35-app:", e)
+
+                if "index" not in st.session_state or st.session_state.index is None:
+                    chunks = create_chunks(article_content)
+                    chunk_vectors = summary_.get_embeddings(chunks)
+                    dimension = chunk_vectors.shape[1]
+                    index_ = faiss.IndexFlatL2(dimension)
+                    index_.add(chunk_vectors)
+                    st.session_state["index"] = index_
+                    st.session_state["chunks"] = chunks
+
                 summary = summary_.generate_summary(
                     article_content, max_token_limit, language
                 )
+                st.session_state["summary"] = summary
+
                 if len(st.session_state.messages) == 0:
                     st.session_state.messages.append(
                         {"role": "assistant", "content": summary}
@@ -61,40 +82,36 @@ def main():
             # Chat input
             if prompt := st.chat_input("What would you like to ask?"):
                 # User message
-                # print("prompted"* 200)
                 with st.chat_message("user", avatar="🧑‍💻"):
                     st.markdown(prompt)
                 st.session_state.messages.append({"role": "user", "content": prompt})
 
-                # Lyra's response
+                # Assistant's response
                 with st.spinner("Assistant is thinking..."):
                     lyra_response = summary_.generate_resp(
-                        st.session_state.input_query, st.session_state.messages, prompt
+                        st.session_state.input_query,
+                        st.session_state.index,
+                        prompt,
+                        st.session_state.chunks,
                     )
                 with st.chat_message("assistant", avatar="🤖"):
                     st.write(lyra_response)
                 st.session_state.messages.append(
                     {"role": "assistant", "content": lyra_response}
                 )
-                st.rerun()
 
         with tab2:
-            if "suggested" not in st.session_state:
+            if "suggested" not in st.session_state or st.session_state.suggested is None:
                 st.session_state.suggested = suggested_keywords.get_suggested(
-                    input_query, summary
+                    st.session_state.input_query, st.session_state.summary
                 )
-                # print("Got keywords")
-                # print(st.session_state.suggested, "&"*100)
-                st.rerun()
 
             if "suggested" in st.session_state:
                 for link in st.session_state.suggested:
                     obj = fetch.extract_content(link)
-                    # print(obj)
                     if not obj["status"]:
                         continue
                     title = obj["title"]
-
                     st.subheader(title)
                     st.write(link)
 
@@ -105,5 +122,11 @@ if __name__ == "__main__":
         st.session_state.messages = []
     if "show" not in st.session_state:
         st.session_state.show = False
+    if "index" not in st.session_state:
+        st.session_state.index = None
+    if "chunks" not in st.session_state:
+        st.session_state.chunks = None
+    if "suggested" not in st.session_state:
+        st.session_state.suggested = None
 
     main()
