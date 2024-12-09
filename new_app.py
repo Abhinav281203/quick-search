@@ -7,6 +7,30 @@ from dotenv import load_dotenv
 import nltk
 # nltk.download('stopwords')
 # nltk.download('punkt')
+
+import tiktoken
+
+def find_max_text_length(text, model="gpt-3.5-turbo", token_limit=15000):
+    encoding = tiktoken.encoding_for_model(model)
+
+    def count_tokens(subtext):
+        return len(encoding.encode(subtext))
+
+    low, high = 0, len(text)
+    best_fit_length = 0
+
+    while low <= high:
+        mid = (low + high) // 2
+        substring = text[:mid]
+        token_count = count_tokens(substring)
+
+        if token_count <= token_limit:
+            best_fit_length = mid
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return text[:best_fit_length]
  
 
 load_dotenv()
@@ -59,7 +83,7 @@ def main():
                     st.session_state["chunks"] = chunks
 
                 summary = summary_.generate_summary(
-                    article_content, max_token_limit, language
+                    find_max_text_length(article_content), max_token_limit, language
                 )
                 st.session_state["summary"] = summary
 
@@ -102,18 +126,25 @@ def main():
 
         with tab2:
             if "suggested" not in st.session_state or st.session_state.suggested is None:
-                st.session_state.suggested = suggested_keywords.get_suggested(
+                session_state = suggested_keywords.get_suggested(
                     st.session_state.input_query, st.session_state.summary
                 )
-
-            if "suggested" in st.session_state:
-                for link in st.session_state.suggested:
+                suggested = []
+                for link in session_state:
                     obj = fetch.extract_content(link)
                     if not obj["status"]:
                         continue
                     title = obj["title"]
+                    suggested.append((title, link))
+                    
+                
+                st.session_state.suggested = suggested
+            
+            if "suggested" in st.session_state:
+                for title, link in st.session_state.suggested:
                     st.subheader(title)
                     st.write(link)
+
 
 
 if __name__ == "__main__":
